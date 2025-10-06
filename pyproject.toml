@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "Ionization"
+version = "1.0.0"
+readme = "README.md"
+packages = [{ include = "Ionization" }]
+requires-python = ">=3.12"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+qutip = "*"
+numpy = "*"
+scipy = "*"
+matplotlib = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

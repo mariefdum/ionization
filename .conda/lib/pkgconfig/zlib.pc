@@ -1,0 +1,13 @@
+prefix=/Users/dumm3209/Desktop/Codes/VScode/ionization/.conda
+exec_prefix=/Users/dumm3209/Desktop/Codes/VScode/ionization/.conda
+libdir=/Users/dumm3209/Desktop/Codes/VScode/ionization/.conda/lib
+sharedlibdir=/Users/dumm3209/Desktop/Codes/VScode/ionization/.conda/lib
+includedir=/Users/dumm3209/Desktop/Codes/VScode/ionization/.conda/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.13
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}
