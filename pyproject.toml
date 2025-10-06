@@ -1,0 +1,10 @@
+[project]
+name = "ionization"
+version = "0.1.0"
+description = "ionization functions"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    { name="Marie Frederique Dumas", email="marie.frederique.dumas@usherbrooke.ca" }
+]
+dependencies = []
