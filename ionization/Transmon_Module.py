@@ -338,6 +338,7 @@ class L_shunted_Transmon:
         self.cos_t_eigbasis = self.transform(self.cosphi_op)
         self.sin_t_eigbasis = self.transform(self.sinphi_op)
 
+
     def transform(self,ket): 
         return qt.Qobj((ket).transform(self.Eigvecs)[0:self.n_trunc,0:self.n_trunc])
 
@@ -374,7 +375,9 @@ class Transmon_Cavity:
         if self.S_params.get('type') != None:
             if self.S_params['type']=='L_shunt':
                 self.Transmon=L_shunted_Transmon(self.S_params)
-
+            else:
+                print('Invalid type, using transmon type. For L-shunted transmon, please use L_shunt')
+                self.Transmon=Transmon(self.S_params)
         else:
             self.Transmon=Transmon(self.S_params)
         
