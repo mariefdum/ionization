@@ -497,7 +497,7 @@ def filter_pairs(arr):
     return result
 
 
-def find_matching_indices(array_m2, array_n2, n_g):
+def find_matching_indices(array_m2, array_n2, higher_levels_problem):
     """
     Finds the indices where the first value of the m-th row in array_m2
     matches the first value of the n-th row in array_n2.
@@ -516,6 +516,7 @@ def find_matching_indices(array_m2, array_n2, n_g):
         matching_j_indices = []
 
         matched = False
+
         # Find all matching indices j
         for j in range(array_n2.shape[0]):
             if array_m2[i, 0] == array_n2[j, 0]:
@@ -527,12 +528,13 @@ def find_matching_indices(array_m2, array_n2, n_g):
             max_j = max(matching_j_indices, key=lambda j: array_n2[j, 1])
             matching_indices.append((i, max_j))
 
-        if matched == False and n_g != 0:
+        if matched == False and higher_levels_problem == False :
             # Calculate the differences
             differences = np.abs(array_n2[:, 0] - array_m2[i, 0])
             # Get the indices of the two smallest differences
             closest_indices = np.sort(np.argsort(differences)[:2])
             matching_indices.append((i, closest_indices[0]))
+
             if len(closest_indices) > 1:
                 matching_indices.append((i, closest_indices[1]))
 
@@ -613,24 +615,21 @@ def find_fwhm_half(y, peak_index):
 
 
 def find_resonance_overlaps(
-    n_g,
-    n_trunc,
-    eps_d_vec,
     f_energies_sorted,
     N_t_sorted,
-    overlap_max,
     overlap_tot,
     param_resonances,
+    higher_levels_problem = False,
 ):
+    
+    len_overlaps = overlap_tot.shape[0]
+    n_trunc = overlap_tot.shape[1]
 
     index_min = param_resonances["index_min"]
     value_min = param_resonances["value_min"]
     ratio_v = param_resonances["ratio_v"]
-    FWHM_coef = param_resonances["FWHM_coef"]
     FWHM_size_min = param_resonances["FWHM_size_min"]
     FWHM_overlap_min = param_resonances["FWHM_overlap_min"]
-
-    param_resonances["FWHM_overlap_min"]
 
     value_max = (1 - ratio_v * value_min,)
 
@@ -682,7 +681,7 @@ def find_resonance_overlaps(
         overlap_tot_max_q_sort = sort_by_nth_column(overlap_tot_max_q, n=0)
         if overlap_tot_max_q_sort.shape[0] > 0:
             indices_q = find_matching_indices(
-                overlap_tot_min[q_i], overlap_tot_max_q_sort, n_g
+                overlap_tot_min[q_i], overlap_tot_max_q_sort, higher_levels_problem
             )
             for i in range(len(indices_q)):
                 res_q.append(
@@ -822,13 +821,13 @@ def find_resonance_overlaps(
                         ind_f = index_crit_tot[q][i]
                     elif i == len(branch_tot[q]) - 1:
                         ind_i = index_crit_tot[q][i - 1]
-                        ind_f = len(overlap_max[q]) + 1
+                        ind_f = len_overlaps + 1
                     else:
                         ind_i = index_crit_tot[q][i - 1]
                         ind_f = index_crit_tot[q][i]
                 else:
                     ind_i = 0
-                    ind_f = len(overlap_max[q]) + 1
+                    ind_f = len_overlaps + 1
 
                 N_t_sorted_q.append(N_t_sorted[branch_tot[q][i]][ind_i:ind_f])
                 f_energies_sorted_q.append(
