@@ -313,7 +313,7 @@ def plot_quasi_energies(
 ):
     q_max_plot = n_trunc
 
-    for q in range(q_max):
+    for q in range(q_max_plot):
         f_energies_ordered_q = np.array(f_energies_ordered[q])
         x_i = 0
         for i in range(len(f_energies_ordered_q) - 1):
@@ -467,34 +467,6 @@ def sort_by_nth_column(combined_array, n):
     sorted_indices = combined_array[:, n].argsort()
     sorted_array = combined_array[sorted_indices]
     return sorted_array
-
-
-def filter_pairs(arr):
-    # Step 1: Group by the first value
-    groups = defaultdict(list)
-    for item in arr:
-        groups[item[0]].append(item)
-
-    # Step 2: Check and retain valid pairs
-    result = []
-    for key, items in groups.items():
-        pair_count = defaultdict(int)
-
-        # Count occurrences of each (second, third) pair
-        for item in items:
-            pair = (item[1], item[2])
-            pair_count[pair] += 1
-
-        # Retain pairs that occur exactly twice
-        valid_pairs = {pair for pair, count in pair_count.items() if count == 2}
-
-        # Filter out invalid pairs
-        for item in items:
-            pair = (item[1], item[2])
-            if pair in valid_pairs:
-                result.append(item)
-
-    return result
 
 
 def find_matching_indices(array_m2, array_n2, higher_levels_problem):
