@@ -281,7 +281,7 @@ class L_shunted_Transmon:
         self.E_C = self.T_params['E_C']
         self.E_J = self.T_params['E_J']
         self.E_L = self.T_params['E_L']
-        self.n_g =0 
+        self.n_g = 0 
         if self.T_params.get('phi_ext') == None:
             self.phi_ext = 0
         else: 
@@ -301,25 +301,25 @@ class L_shunted_Transmon:
         else: 
             self.phi_max = self.T_params['phi_max']
 
-        self.phi_vec=np.linspace(-self.phi_max,self.phi_max,self.phi_size)
-        self.delta_phi=2*self.phi_max/(self.phi_size-1)
+        self.phi_vec = np.linspace(-self.phi_max,self.phi_max,self.phi_size)
+        self.delta_phi = 2*self.phi_max/(self.phi_size-1)
 
-        self.I_op=qt.qeye(self.phi_size)
+        self.I_op = qt.qeye(self.phi_size)
         
-        self.phi_op=qt.qdiags(self.phi_vec,0)
+        self.phi_op = qt.qdiags(self.phi_vec,0)
         
-        self.cosphi_op=qt.qdiags(np.cos(self.phi_vec),0)
-        self.cos2phi_op=qt.qdiags(np.cos(2*self.phi_vec),0)
-        self.cos3phi_op=qt.qdiags(np.cos(3*self.phi_vec),0)
+        self.cosphi_op = qt.qdiags(np.cos(self.phi_vec),0)
+        self.cos2phi_op = qt.qdiags(np.cos(2*self.phi_vec),0)
+        self.cos3phi_op = qt.qdiags(np.cos(3*self.phi_vec),0)
         
-        self.sinphi_op=qt.qdiags(np.sin(self.phi_vec),0)
-        self.sin2phi_op=qt.qdiags(np.sin(2*self.phi_vec),0)
-        self.sin3phi_op=qt.qdiags(np.sin(3*self.phi_vec),0)
+        self.sinphi_op = qt.qdiags(np.sin(self.phi_vec),0)
+        self.sin2phi_op = qt.qdiags(np.sin(2*self.phi_vec),0)
+        self.sin3phi_op = qt.qdiags(np.sin(3*self.phi_vec),0)
    
-        self.n2_op=-1*(qt.qdiags(np.ones(self.phi_size-1),1)+qt.qdiags(-2*np.ones(self.phi_size),0)+qt.qdiags(np.ones(self.phi_size-1),-1))/self.delta_phi**2 # second order derivative
-        self.n_op=1j*(qt.qdiags(1/2*np.ones(self.phi_size-1),1)+qt.qdiags(-1/2*np.ones(self.phi_size-1),-1))/self.delta_phi # second order derivative
+        self.n2_op = -1*(qt.qdiags(np.ones(self.phi_size-1),1)+qt.qdiags(-2*np.ones(self.phi_size),0)+qt.qdiags(np.ones(self.phi_size-1),-1))/self.delta_phi**2 # second order derivative
+        self.n_op = 1j*(qt.qdiags(1/2*np.ones(self.phi_size-1),1)+qt.qdiags(-1/2*np.ones(self.phi_size-1),-1))/self.delta_phi # second order derivative
         
-        self.H_t=4*self.E_C*self.n2_op-self.E_J*self.cosphi_op+self.E_L/2*(self.phi_op+self.I_op*self.phi_ext)**2
+        self.H_t = 4*self.E_C*self.n2_op - self.E_J*self.cosphi_op + self.E_L/2*(self.phi_op+self.I_op*self.phi_ext)**2
  
         self.E, self.Eigvecs = (self.H_t).eigenstates()
     
@@ -376,7 +376,7 @@ class Transmon_Cavity:
             if self.S_params['type']=='L_shunt':
                 self.Transmon=L_shunted_Transmon(self.S_params)
             else:
-                print('Invalid type, using transmon type. For L-shunted transmon, please use L_shunt')
+                print('Using transmon type. For L-shunted transmon, please use L_shunt')
                 self.Transmon=Transmon(self.S_params)
         else:
             self.Transmon=Transmon(self.S_params)

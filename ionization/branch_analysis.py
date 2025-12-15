@@ -3,43 +3,43 @@ import scipy as sp
 import qutip as qt
 
 
-# Function to identify the dressed states i,n
-def generate_BA_qutip(eigv_coupl,eigs_coupl,max_fock,n_trunc):
-    i_0=[]
-    for qubit in range(n_trunc):
-        eigv_q0_bare=qt.tensor(qt.basis(n_trunc,qubit),qt.basis(max_fock,0))
-        c=[]
-        for i in range(int(n_trunc*max_fock)):
-            c.append(np.abs((eigv_q0_bare.overlap(qt.Qobj(eigv_coupl[i])))))
-        i_0.append(np.array(c).argmax())
-    i_0=np.array(i_0)
+# # Function to identify the dressed states i,n
+# def generate_BA_qutip(eigv_coupl,eigs_coupl,max_fock,n_trunc):
+#     i_0=[]
+#     for qubit in range(n_trunc):
+#         eigv_q0_bare=qt.tensor(qt.basis(n_trunc,qubit),qt.basis(max_fock,0))
+#         c=[]
+#         for i in range(int(n_trunc*max_fock)):
+#             c.append(np.abs((eigv_q0_bare.overlap(qt.Qobj(eigv_coupl[i])))))
+#         i_0.append(np.array(c).argmax())
+#     i_0=np.array(i_0)
 
-    at=qt.create(max_fock)
-    at_op=qt.tensor(qt.qeye(n_trunc),at)
-    number_op=qt.tensor(qt.qeye(n_trunc),at*at.dag())
+#     at=qt.create(max_fock)
+#     at_op=qt.tensor(qt.qeye(n_trunc),at)
+#     number_op=qt.tensor(qt.qeye(n_trunc),at*at.dag())
     
-    branches_evals, branches_evecs, branches_indices, branches_metrics=generate_branches(eigs_coupl, evecs_qutip_to_numpy(eigv_coupl), i_0, max_fock, at_op.full())
+#     branches_evals, branches_evecs, branches_indices, branches_metrics = generate_branches(eigs_coupl, evecs_qutip_to_numpy(eigv_coupl), i_0, max_fock, at_op.full())
     
-    ind_tot=[]
-    for i in range(n_trunc):
-        ind_tot.append(branches_indices[i,:])
+#     ind_tot=[]
+#     for i in range(n_trunc):
+#         ind_tot.append(branches_indices[i,:])
 
-    n_photon_tot=[]
-    n_trans_tot=[]
-    vec_i=np.arange(0,n_trunc)
+#     n_photon_tot=[]
+#     n_trans_tot=[]
+#     vec_i=np.arange(0,n_trunc)
     
-    for j in range(n_trunc):
-        n_photon=[]
-        n_trans=[]
+#     for j in range(n_trunc):
+#         n_photon=[]
+#         n_trans=[]
         
-        for i in ind_tot[j]:
-            n_photon.append(np.abs((eigv_coupl[i].dag()*number_op*eigv_coupl[i])[0][0][0]))
-            n_trans.append(((eigv_coupl[i].ptrace(0)).diag()).dot(vec_i))
+#         for i in ind_tot[j]:
+#             n_photon.append(np.abs((eigv_coupl[i].dag()*number_op*eigv_coupl[i])[0][0][0]))
+#             n_trans.append(((eigv_coupl[i].ptrace(0)).diag()).dot(vec_i))
         
-        n_photon_tot.append(np.real(np.array(n_photon)))
-        n_trans_tot.append(np.real(np.array(n_trans)))
+#         n_photon_tot.append(np.real(np.array(n_photon)))
+#         n_trans_tot.append(np.real(np.array(n_trans)))
 
-    return ind_tot,n_photon_tot,n_trans_tot
+#     return ind_tot,n_photon_tot,n_trans_tot
 
     
 # Function to convert numpy eigenvector arrays to qutip eigenvector arrays
@@ -54,9 +54,12 @@ def evecs_qutip_to_numpy(evecs_qutip):
     return evecs_numpy
 
 
-
 # Function to identify the dressed states i,n
 def generate_BA(eigv_coupl,eigs_coupl,max_fock,n_trunc,omega_r=0,method='overlap',delta_fac=1e-2):
+
+    if isinstance((eigv_coupl)[0], qt.Qobj) :
+        eigv_coupl = evecs_qutip_to_numpy(eigv_coupl)
+
     num_op_t=np.diag(np.arange(0,n_trunc))
     I_op_t=np.eye(n_trunc)
     
@@ -83,7 +86,7 @@ def generate_BA(eigv_coupl,eigs_coupl,max_fock,n_trunc,omega_r=0,method='overlap
     at_op_tot=np.kron(I_op_t,at_op)
     
     if method=='overlap':
-        branches_evals, branches_evecs, branches_indices, branches_metrics=generate_branches(eigs_coupl, eigv_coupl, i_0, max_fock, at_op_tot)
+        branches_evals, branches_evecs, branches_indices, branches_metrics = generate_branches(eigs_coupl, eigv_coupl, i_0, max_fock, at_op_tot)
     elif method=='goto':
         branches_evals, branches_evecs, branches_indices = generate_branches_goto(eigs_coupl, eigv_coupl, num_op_t_tot, omega_r, i_0, max_fock,n_trunc,delta_fac)
         branches_metrics=None
@@ -112,7 +115,7 @@ def generate_BA(eigv_coupl,eigs_coupl,max_fock,n_trunc,omega_r=0,method='overlap
     fac_norm_array = np.tile(fac_norm, (len(fac_norm), 1))
     c_tot_norm=np.abs(c_tot/fac_norm_array)**2
 
-    return ind_tot,n_photon_tot,n_trans_tot,branches_metrics,c_tot_norm
+    return ind_tot,np.array(n_photon_tot),np.array(n_trans_tot),branches_evals,branches_metrics,c_tot_norm
 
 
 
@@ -356,6 +359,7 @@ def find_optimum_indices(metrics, break_tie):
 ####################################################### FIND RESONANCES WITH OVERLAPS #############################################################################
 
 
+
 def map_matrix_to_coordinates(matrix):
     n = len(matrix)
     m = len(matrix[0])
@@ -370,6 +374,7 @@ def map_matrix_to_coordinates(matrix):
             output[k] = (i, j)
 
     return np.array(output)
+
 def find_indices_greater_than_threshold(matrix, threshold):
     indices = []
     overlaps = []
@@ -379,6 +384,7 @@ def find_indices_greater_than_threshold(matrix, threshold):
                 indices.append([x, y])
                 overlaps.append( matrix[x][y])
     return np.array(indices),np.array(overlaps)
+
 def sort_matrix(matrix):
     a, b = matrix[0]
     c, d = matrix[1]
@@ -475,7 +481,6 @@ def find_resonances_overlap(c_tot,ind,n_trans,n_photon,eigs_coupl,max_fock,n_tru
         maximum_overlaps.append((subgroups_overlaps[i])[index])
         maximum_indices.append((subgroups_indices[i])[index])
 
-
     # Track qubit like state 
     maximum_indices_nsort_tot=[]
     subgroups_swaps_nsort_tot=[]
@@ -495,8 +500,7 @@ def find_resonances_overlap(c_tot,ind,n_trans,n_photon,eigs_coupl,max_fock,n_tru
         index=np.argmin(np.array(gap_q))
         gap.append((np.array(gap_q))[index])
         gap_indices.append(subgroups_indices_i[index])
-
-        
+    
     # resonances 
     gap_tot=[]
     ncrit_gap_tot=[]
@@ -540,40 +544,10 @@ def find_resonances_overlap(c_tot,ind,n_trans,n_photon,eigs_coupl,max_fock,n_tru
             if subgroups_swaps_nsort[i]==True:
                 branch_character[q0],branch_character[q1]=branch_character[q1],branch_character[q0]
     
-                
-    # #Track qubit like state 
-    # maximum_indices_nsort_tot=[]
-    # subgroups_swaps_nsort_tot=[]
-    # maximum_overlaps_nsort_tot=[]
-    # ncrit_tot=[]
-    # maximum_indices_nsort=np.array(sorted(maximum_indices, key=lambda x: (x[0, 1],x[1, 1])))
-    # sorting_indices = np.lexsort((np.array(maximum_indices)[:, 1, 1], np.array(maximum_indices)[:, 0,1]))
-    # subgroups_swaps_nsort=np.array(subgroups_swaps)[sorting_indices]
-    # maximum_overlaps_nsort=np.array(maximum_overlaps)[sorting_indices]
-    # branch_character=np.arange(0,n_trunc)
-    # for q in range(n_trunc):
-    #     maximum_indices_nsort_tot.append([])
-    #     subgroups_swaps_nsort_tot.append([])
-    #     maximum_overlaps_nsort_tot.append([])
-    #     ncrit_tot.append([])  
-    # for i in range(len(maximum_indices_nsort)):
-    #     res=maximum_indices_nsort[i]
-    #     q0,n0=res[0]
-    #     q1,n1=res[1]
-    #     branch_character_0=branch_character[q0]
-    #     branch_character_1=branch_character[q1]
-    #     if branch_character[q0]!=branch_character[q1]+1 and branch_character[q0]!=branch_character[q1]-1:
-    #         for [q,n] in [[q0,n0],[q1,n1]]:
-    #             branch_character_q=branch_character[q]
-    #             maximum_indices_nsort_tot[branch_character_q].append(res)
-    #             subgroups_swaps_nsort_tot[branch_character_q].append(subgroups_swaps_nsort[i])
-    #             maximum_overlaps_nsort_tot[branch_character_q].append(maximum_overlaps_nsort[i])
-    #             ncrit_tot[branch_character_q].append(np.array(n_photon)[q0,n0])
-    
-    #         if subgroups_swaps_nsort[i]==True:
-    #             branch_character[q0],branch_character[q1]=branch_character[q1],branch_character[q0]
-        
     return subgroups_swaps_nsort_tot,maximum_indices_nsort_tot,maximum_overlaps_nsort_tot,ncrit_overlap_tot,indices_gap_tot,gap_tot,ncrit_gap_tot
+
+
+
 
 
 ####################################################### FIND RESONANCES WITH N_T  #############################################################################
@@ -617,26 +591,6 @@ def find_resonances_N_t(q_array,N_t_tot,N_r_tot,Transmon_params,y_threshold=0.00
                         crossing.append([q_i,q_f,index_der_tot_array[i][1]])
                         index_der_tot_array[i]=[0,0]
                         index_der_tot_array[j]=[0,0]
-                    
-    #crossing = []
-    #for q_i in range(trunc_charge):
-    #    for q_f in range(trunc_charge):
-    #        if q_f>q_i:
-    #            index_match = [x for x in index_der_tot[q_i] if x in index_der_tot[q_f]]
-    #            for i_match in index_match:
-    #                crossing.append([q_i,q_f,i_match])
-    #            index_match = [x for x in index_der_tot[q_i] if x in [y+1 for y in index_der_tot[q_f]]]
-    #            for i_match in index_match:
-    #                crossing.append([q_i,q_f,i_match])
-    #           index_match = [x for x in index_der_tot[q_i] if x in [y-1 for y in index_der_tot[q_f]]]
-    #            for i_match in index_match:
-    #                crossing.append([q_i,q_f,i_match])
-    #            index_match = [x for x in index_der_tot[q_i] if x in [y+2 for y in index_der_tot[q_f]]]
-    #            for i_match in index_match:
-    #                crossing.append([q_i,q_f,i_match])
-    #            index_match = [x for x in index_der_tot[q_i] if x in [y-2 for y in index_der_tot[q_f]]]
-    #            for i_match in index_match:
-    #                crossing.append([q_i,q_f,i_match])
     
     crossing = np.array(crossing)
     

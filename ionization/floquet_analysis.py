@@ -401,7 +401,6 @@ def calculate_overlap_tot(n_trunc, f_modes_0_sorted, eps_d_vec):
 
 ####################################################### FIND RESONANCES WITH OVERLAPS, BY LOOKING AT OVERLAPS WITH OTHER BRANCHES #############################################################################
 
-
 def find_local_maxima(arr, index_min, value_min):
 
     local_maxima = []
